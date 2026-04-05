@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+beautifulsoup4
+requests
+pydantic
+pydantic-settings
+python-dotenv
+openai
+pytest
+httpx

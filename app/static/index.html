@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Villion GEO Audit Demo</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #f4f7f6; padding: 40px; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+        h1 { color: #1a1a1a; margin-top: 0; }
+        .input-group { display: flex; gap: 10px; margin-bottom: 30px; }
+        input { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 16px; }
+        button { padding: 12px 24px; background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; }
+        button:hover { background: #0056b3; }
+        .result { display: none; margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px; }
+        .section { margin-bottom: 20px; }
+        .label { font-weight: 700; color: #555; margin-bottom: 5px; display: block; }
+        pre { background: #272822; color: #f8f8f2; padding: 15px; border-radius: 6px; overflow-x: auto; font-size: 13px; }
+        .loading { display: none; color: #007bff; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 GEO Audit System</h1>
+        <p>Villion Inc. - Generative Engine Optimization Audit Tool</p>
+        
+        <div class="input-group">
+            <input type="text" id="urlInput" placeholder="Enter webpage URL (e.g., https://example.com)">
+            <button onclick="runAudit()">Run Audit</button>
+        </div>
+        
+        <div id="loading" class="loading">Analyzing page content... Please wait.</div>
+
+        <div id="result" class="result">
+            <div class="section">
+                <span class="label">Page Title:</span>
+                <div id="title"></div>
+            </div>
+            <div class="section">
+                <span class="label">Meta Description:</span>
+                <div id="description"></div>
+            </div>
+            <div class="section">
+                <span class="label">Recommended JSON-LD:</span>
+                <pre id="jsonLd"></pre>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function runAudit() {
+            const url = document.getElementById('urlInput').value;
+            const loading = document.getElementById('loading');
+            const resultDiv = document.getElementById('result');
+            
+            if (!url) return alert('Please enter a URL');
+
+            loading.style.display = 'block';
+            resultDiv.style.display = 'none';
+
+            try {
+                const response = await fetch('/audit', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url: url })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    document.getElementById('title').innerText = data.page_data.title || 'N/A';
+                    document.getElementById('description').innerText = data.page_data.meta_description || 'N/A';
+                    document.getElementById('jsonLd').innerText = JSON.stringify(data.json_ld, null, 2);
+                    resultDiv.style.display = 'block';
+                } else {
+                    alert('Error: ' + data.detail);
+                }
+            } catch (err) {
+                alert('Connection failed: ' + err.message);
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
